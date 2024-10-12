@@ -1,7 +1,7 @@
 ---
 - name: Check for available updates
   hosts: all
-  gather_facts: false
+  gather_facts: true  # Enable fact gathering
   tasks:
     - name: Check for updates on Debian-based systems
       apt:
