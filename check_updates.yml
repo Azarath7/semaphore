@@ -1,0 +1,40 @@
+---
+- name: Check for available updates
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Check for updates on Debian-based systems
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # Cache valid for 1 hour
+        upgrade: 'dist'          # This will show available upgrades
+      register: apt_updates
+      when: ansible_os_family == "Debian"
+
+    - name: Display Debian updates
+      debug:
+        msg: "{{ apt_updates.upgrade }}"
+      when: ansible_os_family == "Debian"
+
+    - name: Check for updates on Red Hat-based systems
+      dnf:
+        update_cache: yes
+        list: updates
+      register: dnf_updates
+      when: ansible_os_family == "RedHat"
+
+    - name: Display Red Hat updates
+      debug:
+        msg: "{{ dnf_updates.results }}"
+      when: ansible_os_family == "RedHat"
+
+    - name: Check for updates on CentOS 7 systems
+      yum:
+        list: updates
+      register: yum_updates
+      when: ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '==')
+
+    - name: Display CentOS updates
+      debug:
+        msg: "{{ yum_updates.results }}"
+      when: ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '==')
