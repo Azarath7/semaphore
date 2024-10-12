@@ -1,6 +1,11 @@
-tasks:
-
-  - ansible.builtin.wait_for:
-      host: "{{ inventory_hostname }}"
-      port: 22
-    delegate_to: localhost
+---
+- name: SSH Port Check
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Wait for SSH to be available
+      ansible.builtin.wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        timeout: 30  # Optional: specify a timeout in seconds
+      delegate_to: localhost
