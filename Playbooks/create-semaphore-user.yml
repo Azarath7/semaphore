@@ -1,7 +1,7 @@
 ---
 - name: Create Semaphore User
   hosts: all
-  gather-facts: no
+  gather_facts: no
   become: yes  # Escalate privileges to run tasks as root
   tasks:
     - name: Create semaphore user
