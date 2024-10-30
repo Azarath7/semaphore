@@ -1,12 +1,15 @@
 ---
-- name: Get IP address information
-  hosts: all  # Adjust to target specific hosts or groups in your inventory
-  gather_facts: no  # Skip gathering facts for faster execution
+- name: Test SSH connectivity
+  hosts: all
+  gather_facts: no
   tasks:
-    - name: Run `ip a` command
-      command: ip a
-      register: ip_output  # Register the output to display later
-
-    - name: Show IP address information
+    - name: Ping target host
+      ping:
+        
+    - name: Get hostname
+      command: hostname
+      register: host_name
+      
+    - name: Display hostname
       debug:
-        var: ip_output.stdout  # Display the command output
+        msg: "Successfully connected to {{ host_name.stdout }}"
