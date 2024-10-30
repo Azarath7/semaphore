@@ -2,6 +2,20 @@
 - name: Install Docker on Debian
   hosts: all
   become: true
+  gather_facts: no  # Skip initial fact gathering
+  
+  tasks:
+    - name: Install Python
+      raw: |
+        if [ -x "$(command -v apt)" ]; then
+          apt update -y && apt install -y python3
+        elif [ -x "$(command -v yum)" ]; then
+          yum install -y python3
+        fi
+
+    - name: Gather facts after Python installation
+      setup:  # Now gather facts
+
   roles:
     - docker_install
     - portainer_deploy
