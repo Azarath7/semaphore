@@ -1,23 +1,4 @@
----
-- name: Gather Current Time and System Information
-  hosts: all
-  gather_facts: true
+- hosts: all
   tasks:
-    - name: Get current time
-      command: date '+%Y-%m-%d %H:%M:%S'
-      register: current_time
-
-    - name: Get system uptime
-      command: uptime -p
-      register: system_uptime
-
-    - name: Get system timezone
-      command: timedatectl show --property=Timezone --value
-      register: system_timezone
-
-    - name: Display results
-      debug:
-        msg:
-          - "Current Time: {{ current_time.stdout }}"
-          - "System Uptime: {{ system_uptime.stdout }}"
-          - "Timezone: {{ system_timezone.stdout }}"
+    - name: Gather facts
+      setup:
