@@ -5,6 +5,7 @@
   vars:
     docker_compose_version: "2.23.0"
     portainer_port: "9443"
+    server_address: "{{ ansible_host if ansible_host != 'localhost' else inventory_hostname }}"
   tasks:
     - name: Update apt cache
       apt:
@@ -80,4 +81,4 @@
 
     - name: Print success message
       debug:
-        msg: "Portainer has been installed and is available at https://your-server:{{ portainer_port }}"
+        msg: "Portainer has been installed and is available at https://{{ server_address }}:{{ portainer_port }}"
