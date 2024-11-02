@@ -1,50 +1,87 @@
-- hosts: all
+---
+- name: Install Portainer with dependencies
+  hosts: all
   become: yes
-  
+  vars:
+    docker_compose_version: "2.23.0"
+    portainer_port: "9443"
+
   tasks:
-    - name: Install required packages
+    - name: Update apt cache
       apt:
-        name:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required system packages
+      apt:
+        pkg:
           - apt-transport-https
           - ca-certificates
           - curl
           - software-properties-common
+          - python3
           - python3-pip
+          - gnupg
+          - lsb-release
         state: present
-        update_cache: true
-      
-    - name: Add Docker GPG apt Key
+
+    - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/debian/gpg
         state: present
-      
-    - name: Add Docker Repository
+
+    - name: Add Docker repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable
+        repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
         state: present
-      
+
     - name: Install Docker
       apt:
-        name: 
+        pkg:
           - docker-ce
           - docker-ce-cli
           - containerd.io
-          - docker-compose-plugin
         state: present
-        update_cache: true
-      
-    - name: Install Portainer
+        update_cache: yes
+
+    - name: Install Docker Python package
+      pip:
+        name: docker
+        state: present
+
+    - name: Install Docker Compose Python package
+      pip:
+        name: docker-compose
+        state: present
+
+    - name: Create Portainer volume
+      docker_volume:
+        name: portainer_data
+        state: present
+
+    - name: Pull Portainer image
+      docker_image:
+        name: portainer/portainer-ce
+        source: pull
+
+    - name: Start Portainer container
       docker_container:
         name: portainer
         image: portainer/portainer-ce
+        state: started
+        restart_policy: always
         ports:
-          - 9000:9000
-          - 8000:8000
+          - "{{ portainer_port }}:9443"
+          - "8000:8000"
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
           - portainer_data:/data
-        state: started
-        restart_policy: always
-      
-  vars:
-    portainer_data: /opt/portainer
+
+    - name: Wait for Portainer to be available
+      wait_for:
+        port: "{{ portainer_port }}"
+        timeout: 30
+
+    - name: Print success message
+      debug:
+        msg: "Portainer has been installed and is available at https://your-server:{{ portainer_port }}"
